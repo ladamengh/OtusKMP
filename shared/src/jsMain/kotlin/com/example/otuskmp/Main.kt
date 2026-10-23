@@ -12,9 +12,31 @@ import org.jetbrains.compose.web.dom.Text
 import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.renderComposable
 
+private val accentColor = Color("#6750A4")
+
+private fun StyleScope.actionButtonStyle() {
+    padding(12.px, 24.px)
+    borderRadius(24.px)
+    property("border", "none")
+    backgroundColor(Color.transparent)
+    color(accentColor)
+    fontSize(16.px)
+}
+
+private fun StyleScope.copyButtonStyle() {
+    marginTop(4.px)
+    padding(8.px)
+    borderRadius(24.px)
+    property("border", "none")
+    backgroundColor(Color.transparent)
+    color(accentColor)
+    fontSize(24.px)
+    lineHeight("1")
+}
+
 fun main() {
     renderComposable("root") {
-        val viewModel = remember { StopwatchViewModel() }
+        val viewModel = remember { StopwatchViewModel(JsClipboard()) }
         var uiState by remember {
             mutableStateOf(viewModel.uiState.value)
         }
@@ -64,12 +86,7 @@ fun main() {
                 Button(
                     attrs = {
                         style {
-                            padding(12.px, 24.px)
-                            borderRadius(24.px)
-                            property("border", "none")
-                            backgroundColor(Color.transparent)
-                            color(Color("#6750A4"))
-                            fontSize(16.px)
+                            actionButtonStyle()
                         }
                         onClick {
                             viewModel.onStartClicked()
@@ -82,12 +99,7 @@ fun main() {
                 Button(
                     attrs = {
                         style {
-                            padding(12.px, 24.px)
-                            borderRadius(24.px)
-                            property("border", "none")
-                            backgroundColor(Color.transparent)
-                            color(Color("#6750A4"))
-                            fontSize(16.px)
+                            actionButtonStyle()
                         }
                         onClick {
                             viewModel.onStopClicked()
@@ -96,6 +108,21 @@ fun main() {
                 ) {
                     Text("Stop")
                 }
+            }
+
+            Button(
+                attrs = {
+                    attr("aria-label", "Скопировать")
+                    attr("title", "Скопировать")
+                    style {
+                        copyButtonStyle()
+                    }
+                    onClick {
+                        viewModel.onCopyClicked()
+                    }
+                }
+            ) {
+                Text("⧉")
             }
         }
     }

@@ -8,6 +8,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -19,8 +23,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.otuskmp.AndroidClipboard
 import com.example.otuskmp.StopwatchViewModel
 
 class MainActivity : ComponentActivity() {
@@ -32,7 +38,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    StopWatchContent()
+                    StopwatchContent()
                 }
             }
         }
@@ -40,12 +46,14 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun StopWatchContent(modifier: Modifier = Modifier) {
-    // fixme: Use jetpack ViewModel for handling configuration changes
-    val viewModel = remember { StopwatchViewModel() }
+fun StopwatchContent(modifier: Modifier = Modifier) {
+    val context = LocalContext.current.applicationContext
+    val viewModel = remember(context) {
+        StopwatchViewModel(AndroidClipboard(context))
+    }
     val uiState by viewModel.uiState.collectAsState()
 
-    DisposableEffect(Unit) {
+    DisposableEffect(viewModel) {
         onDispose {
             viewModel.onDestroy()
         }
@@ -72,6 +80,16 @@ fun StopWatchContent(modifier: Modifier = Modifier) {
                 Text("Stop")
             }
         }
+        IconButton(
+            modifier = Modifier.padding(top = 4.dp),
+            onClick = viewModel::onCopyClicked
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.ContentCopy,
+                contentDescription = "Скопировать",
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
     }
 }
 
@@ -79,6 +97,6 @@ fun StopWatchContent(modifier: Modifier = Modifier) {
 @Composable
 fun DefaultPreview() {
     MyApplicationTheme {
-        StopWatchContent()
+        StopwatchContent()
     }
 }

@@ -13,7 +13,9 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 
-class StopwatchViewModel {
+class StopwatchViewModel(
+    private val clipboard: Clipboard,
+) {
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private var job: Job? = null
 
@@ -56,6 +58,10 @@ class StopwatchViewModel {
             .launchIn(coroutineScope)
     }
 
+    fun onCopyClicked() {
+        clipboard.copy(uiState.value.formattedTime)
+    }
+
     private fun tickerFlow(): Flow<Unit> {
         return flow {
             while (true) {
@@ -71,6 +77,7 @@ data class StopwatchUiState(
     val initialTimeMillis: Long
 ) {
     private val formatter = DecimalFormat("0.00")
-    val formattedTime: String =
-        formatter.format((currentTimeMillis.toDouble() - initialTimeMillis.toDouble()) / 1000.0)
+    val formattedTime: String = formatter.format(
+        (currentTimeMillis.toDouble() - initialTimeMillis.toDouble()) / 1000.0
+    )
 }

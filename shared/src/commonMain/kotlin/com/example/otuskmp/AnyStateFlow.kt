@@ -2,6 +2,7 @@ package com.example.otuskmp
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalForInheritanceCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.StateFlow
@@ -12,11 +13,10 @@ interface Cancellable {
     fun cancel()
 }
 
-class AnyStateFlow<T: Any>(
-    private val source: StateFlow<T>
+@OptIn(ExperimentalForInheritanceCoroutinesApi::class)
+class AnyStateFlow<T : Any>(
+    private val source: StateFlow<T>,
 ) : StateFlow<T> by source {
-    override val value: T = source.value
-
     fun collect(onEach: (T) -> Unit): Cancellable {
         val scope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
@@ -32,4 +32,4 @@ class AnyStateFlow<T: Any>(
     }
 }
 
-fun <T: Any> StateFlow<T>.wrapToAny() = AnyStateFlow(this)
+fun <T : Any> StateFlow<T>.wrapToAny() = AnyStateFlow(this)

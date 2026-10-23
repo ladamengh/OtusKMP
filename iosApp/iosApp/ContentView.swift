@@ -2,7 +2,7 @@ import SwiftUI
 import shared
 
 struct ContentView: View {
-    @StateObject var viewModel = StopwatchViewModelWrapper()
+    @StateObject private var viewModel = StopwatchViewModelWrapper()
     
     var body: some View {
         VStack {
@@ -17,15 +17,23 @@ struct ContentView: View {
                     Text("Stop")
                 })
             }
+            Button(action: viewModel.onCopyClicked, label: {
+                Image(systemName: "doc.on.doc")
+            })
+            .foregroundStyle(Color(red: 0.404, green: 0.314, blue: 0.643))
+            .accessibilityLabel("Скопировать")
         }
     }
 }
 
-class StopwatchViewModelWrapper: ObservableObject {
-    private let viewModel = StopwatchViewModel()
+private final class StopwatchViewModelWrapper: ObservableObject {
+    private let viewModel = StopwatchViewModel(clipboard: IosClipboard())
     private var observer: Cancellable?
     
-    @Published var uiState: StopwatchUiState = StopwatchUiState(currentTimeMillis: 0, initialTimeMillis: 0)
+    @Published private(set) var uiState = StopwatchUiState(
+        currentTimeMillis: 0,
+        initialTimeMillis: 0
+    )
     
     func onStartClicked() {
         viewModel.onStartClicked()
@@ -33,6 +41,10 @@ class StopwatchViewModelWrapper: ObservableObject {
     
     func onStopClicked() {
         viewModel.onStopClicked()
+    }
+
+    func onCopyClicked() {
+        viewModel.onCopyClicked()
     }
     
     init() {
